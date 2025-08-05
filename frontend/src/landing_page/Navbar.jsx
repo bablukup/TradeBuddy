@@ -1,18 +1,19 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-function Navebar() {
+function Navbar() {
   return (
     <nav className="navbar navbar-expand-lg bg-white sticky-top  border-bottom">
       <div className="container-fluid">
         {/* Logo */}
-        <a className="navbar-brand fw-bold d-flex align-items-center" href="#">
+        <Link className="navbar-brand fw-bold d-flex align-items-center" to="/">
           <img
-            src="https://zerodha.com/static/images/logo.svg"
+            src="\media\image\logo.svg"
             alt="TradeBuddy"
-            height="24"
+            height="30"
             className="me-2"
           />
-        </a>
+        </Link>
 
         {/* Mobile toggle button */}
         <button
@@ -34,29 +35,29 @@ function Navebar() {
         >
           <ul className="navbar-nav">
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="/signup">
                 Signup
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="/about">
                 About
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="products">
                 Products
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link" href="#">
+              <Link className="nav-link" to="pricing">
                 Pricing
-              </a>
+              </Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link active" href="#">
+              <Link className="nav-link active" to="support">
                 Support
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -65,4 +66,4 @@ function Navebar() {
   );
 }
 
-export default Navebar;
+export default Navbar;

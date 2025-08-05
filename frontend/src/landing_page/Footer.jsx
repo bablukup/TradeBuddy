@@ -47,13 +47,11 @@ function Footer() {
               <br />
             </div>
           </div>
-          <div className="mt-5 text-smale text-muted fs-6">
+          <div className="mt-5 text-small text-muted fs-6">
+            <div className="mb-3">
+              <strong>TradeBuddy (Demo Full-Stack Project)</strong>
+            </div>
             <p>
-              <p className="mb-3">
-                {" "}
-                <b>TradeBuddy (Demo Full-Stack Project) </b>{" "}
-              </p>{" "}
-              <br />
               TradeBuddy is a self-designed, modern investment platform created
               as a demonstration project to showcase my skills in both frontend
               and backend web development within the fintech domain. This
@@ -61,39 +59,15 @@ function Footer() {
               [your backend technology—e.g., Node.js, Express, Django, or any
               other] for the backend API, providing a complete simulation of a
               secure, scalable trading platform.
-              {/* <p className="mt-4 mb-2">
-              {" "}
-              <b>Key highlights:</b>{" "}
             </p>
+
+            <div className="mt-4 mb-2">
+              <strong>Note:</strong>
+            </div>
             <p>
-              User-friendly dashboard for simulated trading (stocks,
-              commodities, funds), built with React.
-            </p>
-            <p>
-              RESTful backend/API for handling mock user accounts, portfolios,
-              and transaction data.
-            </p>
-            <p>
-              Demo functionalities: user authentication, account management,
-              order simulation, and real-time data updates.
-            </p>
-            <p>
-              Custom branding with modern color themes, vector images, and
-              educational sections.
-            </p>
-            <p>
-              Project is strictly for personal portfolio and academic
-              demonstration—no real trading or financial transactions.
-            </p> */}
-              <p className="mt-4 mb-2">
-                {" "}
-                <b>Note:</b>{" "}
-              </p>
-              <p>
-                This is a non-commercial, self-built demo project for learning
-                and resume purposes and is not affiliated with any real
-                financial institution or brokerage.
-              </p>
+              This is a non-commercial, self-built demo project for learning and
+              resume purposes and is not affiliated with any real financial
+              institution or brokerage.
             </p>
           </div>
         </div>
