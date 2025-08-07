@@ -5,7 +5,7 @@ function Footer() {
     <>
       <footer style={{ background: "rgb(248, 249, 250)" }}>
         <div className="container">
-          <div className="row">
+          <div className="row ">
             <div className="col">
               <h1 className="fs-2 ">TradeBuddy</h1>
               <p className="text-muted">
