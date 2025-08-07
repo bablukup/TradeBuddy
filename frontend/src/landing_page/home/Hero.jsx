@@ -10,7 +10,9 @@ function Hero() {
             alt="HomeHero"
             className="mb-5"
           />
-          <h1 className="mt-5">Simplify Your Investments with TradeBuddy</h1>
+          <h1 className="mt-5 fw-bold">
+            Simplify Your Investments with TradeBuddy
+          </h1>
           <p>
             Your all-in-one platform for seamless stock trading, intelligent
             portfolio tracking, and real-time market insights — designed for

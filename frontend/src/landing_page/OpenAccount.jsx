@@ -5,7 +5,7 @@ function OpneAccount() {
     <>
       <div className="Container p-5 mb-5">
         <div className="row text-Center">
-          <h1 className="mt-5">Open a TradeBuddy account</h1>
+          <h1 className="mt-5 fw-bold">Open a TradeBuddy account</h1>
           <p className="mt-2 mb-4">
             Discover TradeBuddy’s intuitive, transparent, and powerful investing
             features that simplify your journey.

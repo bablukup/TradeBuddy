@@ -6,7 +6,7 @@ function Hero() {
     <>
       <div className="container">
         <div className="row mt-5 border-bottom mb-5">
-          <h1>Products</h1>
+          <h1 className="fw-bold">Products</h1>
           <h5 className="mb-2 mt-2">
             Sleek, modern, and intuitive trading platform designed for
             effortless investing.
