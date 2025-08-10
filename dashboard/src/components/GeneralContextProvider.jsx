@@ -9,6 +9,7 @@ export const GeneralContext = createContext({
   openSellWindow: (uid) => {},
   closeSellWindow: () => {},
   setDefaultUID: (uid) => {}, // for hotkeys fallback
+  selectedStockUID: "",
 });
 
 const GeneralContextProvider = (props) => {
@@ -99,6 +100,7 @@ const GeneralContextProvider = (props) => {
         openSellWindow,
         closeSellWindow,
         setDefaultUID, // call from WatchList mount
+        selectedStockUID,
       }}
     >
       {props.children}

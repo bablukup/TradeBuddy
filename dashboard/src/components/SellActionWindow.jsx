@@ -2,15 +2,17 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { GeneralContext } from "./GeneralContextProvider";
 import "./SellActionWindow.css";
+import { watchlist } from "../data/data";
 
 const SellActionWindow = ({ uid }) => {
   const [stockQuantity, setStockQuantity] = useState(1);
   const [stockPrice, setStockPrice] = useState(0.0);
   const { closeSellWindow } = useContext(GeneralContext);
+  const stock = watchlist.find((s) => s.name === uid);
 
   const handleSellClick = async () => {
     try {
-      await axios.post("http://localhost:3002/newOrder", {
+      await axios.post("http://localhost:8080/newOrder", {
         name: uid,
         qty: stockQuantity,
         price: stockPrice,
@@ -26,6 +28,7 @@ const SellActionWindow = ({ uid }) => {
     <div className="container" id="sell-window" draggable="true">
       <div className="regular-order">
         <div className="inputs">
+          <h4>{stock ? <span>{stock.name}</span> : ""}</h4>
           <fieldset>
             <legend>Qty.</legend>
             <input
