@@ -1,0 +1,107 @@
+#sell-window.container {
+  --radius: 4px;
+  width: 40%;
+  height: 63%;
+  background: rgb(245, 245, 245);
+  position: absolute;
+  bottom: 0;
+  left: 35%;
+  cursor: move;
+  box-sizing: border-box;
+  z-index: 100;
+  border-radius: var(--radius);
+  border: 1px solid rgb(238, 238, 238);
+}
+
+#sell-window .dragging {
+  opacity: 0;
+}
+
+#sell-window .regular-order {
+  padding: 16px 26px;
+  background-color: #fff;
+  padding-bottom: 30px;
+}
+
+#sell-window .regular-order label {
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+#sell-window .inputs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+#sell-window .inputs fieldset {
+  max-width: 120px;
+  box-sizing: border-box;
+  border: 0.7px solid #ddd;
+  margin-right: 8px;
+}
+
+#sell-window .inputs fieldset legend {
+  margin-left: 10px;
+  font-size: 0.8rem;
+  padding: 0 4px;
+}
+
+#sell-window .inputs fieldset:last-of-type legend {
+  color: #ddd;
+}
+
+#sell-window .inputs fieldset input {
+  border: none;
+  margin-right: 8px;
+  max-width: 130px;
+  min-height: 35px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  font-size: 1.1rem;
+}
+
+#sell-window .buttons {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  top: 10%;
+  padding: 0 20px;
+}
+
+#sell-window .buttons span {
+  font-size: 0.8rem;
+}
+
+#sell-window .btn {
+  text-decoration: none;
+  padding: 10px 20px;
+  border-radius: 2px;
+  color: #fff;
+  margin-right: 2px;
+  margin-left: 2px;
+}
+
+#sell-window .btn-grey {
+  background: #d4d4d4;
+  color: #666666;
+}
+
+#sell-window .btn-grey:hover {
+  background: #9b9b9b;
+  color: #fff;
+}
+
+/* Red primary inside sell window scope */
+#sell-window .btn.btn-blue {
+  background: #ff4d4f;
+}
+
+#sell-window .btn.btn-blue:hover {
+  background: #ff3b3d;
+}
