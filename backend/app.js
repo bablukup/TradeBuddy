@@ -8,9 +8,11 @@ require("dotenv").config();
 const bodyParser = require("body-parser");
 const Cors = require("cors");
 const dbUrl = process.env.ATLASDB_URL;
+const bcrypt = require("bcryptjs");
 
 app.use(Cors());
 app.use(bodyParser.json());
+app.use(express.json());
 
 main()
   .then(() => {
@@ -56,6 +58,10 @@ app.post("/newOrder", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
+app.use("/api/auth", require("./routes/auth"));
+
+app.get("/", (req, res) => res.send("Api running"));
 
 app.listen(8080, () => {
   console.log("root is working");
