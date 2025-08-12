@@ -6,22 +6,81 @@ const authorize = require("../middleware/authorize");
 
 const { OrdersModel } = require("../model/OrdersModel");
 const { HoldingsModel } = require("../model/HoldingsModel");
+const UsersModel = require("../model/UsersModels");
 
 //Trade create
 router.post("/", authenticate, authorize("create_trade"), async (req, res) => {
   try {
-    let newOrder = new OrdersModel({
-      userId: req.user.id,
-      name: req.body.name,
-      qty: req.body.qty,
-      price: req.body.price,
-      mode: req.body.mode,
+    const { name, qty, price, mode } = req.body;
+    const userId = req.user.id;
+
+    const user = await UsersModel.findById(userId);
+    if (!user) return res.status(400).json({ error: "User not found" });
+
+    const totalValue = qty * price;
+    if (mode === "buy") {
+      if (user.balance < totalValue) {
+        return res.status(400).json({ error: "Insufficient balance to buy" });
+      }
+      user.balance -= totalValue;
+    } else if (mode === "sell") {
+      const holding = await HoldingsModel.findOne({ userId, name });
+      if (!holding || holding.qty < qty) {
+        return res.status(400).json({ error: "Insufficient stocks to sell" });
+      }
+      user.balance += totalValue;
+    } else {
+      return res.status(400).json({ error: "Invalid trade mode" });
+    }
+    await user.save();
+
+    let holding = await HoldingsModel.findOne({ userId, name });
+
+    if (mode === "buy") {
+      if (holding) {
+        const newQty = holding.aty + qty;
+        const newAvg = (holding.avg * holding.aty + price * qty) / newQty;
+        holding.qty = newQty;
+        holding.qty = newAvg;
+      } else {
+        holding = new HoldingsModel({
+          userId,
+          name,
+          qty,
+          avg: price,
+          price,
+          net: "0",
+          day: "0",
+        });
+      }
+    } else if (mode === "sell") {
+      holding.qty -= qty;
+      if (holding.qty <= 0) {
+        await HoldingsModel.deleteOne({ userId, name });
+        holding = null;
+      } else {
+        await holding.save();
+      }
+    }
+    if (holding) await holding.save();
+
+    const newOrder = new OrdersModel({
+      userId,
+      name,
+      qty,
+      price,
+      mode,
     });
     await newOrder.save();
-    res.json({ message: "Order saved successfully" });
+
+    res.json({
+      message: "Order executed successfully",
+      balance: user.balance,
+      holding,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Server error" });
+    res.status(400).json({ error: "Server error" });
   }
 });
 
