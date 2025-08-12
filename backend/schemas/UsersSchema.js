@@ -37,6 +37,12 @@ const UsersSchema = new Schema(
       default: 10000,
     },
     portfolio: { type: [PortfolioItemSchema], default: [] },
+
+    role: {
+      type: String,
+      enum: ["Trader"],
+      default: "Trader",
+    },
   },
   { timestamps: true }
 );

@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
-// const bcrypt = require("bcrypt");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../model/UsersModels");
-const authMiddleware = require("../middleware/auth");
+const authMiddleware = require("../middleware/authenticate");
 
 // Register route
 router.post("/register", async (req, res) => {
@@ -14,9 +13,10 @@ router.post("/register", async (req, res) => {
     if (!username || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
+    const emailNormalized = email.toLowerCase();
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: emailNormalized });
     if (existingUser) {
       return res.status(409).json({ message: "User already exists" });
     }
@@ -25,11 +25,18 @@ router.post("/register", async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
-    const newUser = new User({ username, email, password: hashed });
+    // Set role as Trader by default
+    const newUser = new User({
+      username,
+      email,
+      email: emailNormalized,
+      password: hashed,
+      role: "Trader",
+    });
     await newUser.save();
 
     // Create JWT token
-    const payload = { id: newUser._id };
+    const payload = { id: newUser._id, role: newUser.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRES_IN || "1h",
     });
@@ -82,7 +89,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const payload = { id: user._id };
+    const payload = { id: user._id, role: user.role };
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, {
       expiresIn: process.env.JWT_EXPIRES_IN || "1h",
     });
@@ -94,6 +101,7 @@ router.post("/login", async (req, res) => {
         username: user.username,
         email: user.email,
         balance: user.balance,
+        role: user.role,
       },
     });
   } catch (error) {
