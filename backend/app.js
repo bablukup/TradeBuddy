@@ -3,7 +3,7 @@ const app = express();
 const mongoose = require("mongoose");
 require("dotenv").config();
 const bodyParser = require("body-parser");
-const Cors = require("cors");
+const cors = require("cors");
 const dbUrl = process.env.ATLASDB_URL;
 
 const authenticate = require("./middleware/authenticate");
@@ -14,20 +14,41 @@ const { HoldingsModel } = require("./model/HoldingsModel");
 const { PositionsModel } = require("./model/PositionsModel");
 const { OrdersModel } = require("./model/OrdersModel");
 
-app.use(Cors());
+const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
+
+// app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
 async function main() {
-  await mongoose.connect(dbUrl);
+  try {
+    await mongoose.connect(dbUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      serverSelectionTimeoutMS: 10000,
+    });
+    console.log("Connected to MongoDB");
+  } catch (error) {
+    console.error("MongoDB connection error:", error);
+    process.exit(1); // Optional: exit app on DB connection failure
+  }
 }
-main()
-  .then(() => {
-    console.log("connection to db");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+main();
 
 app.get(
   "/allHolding",

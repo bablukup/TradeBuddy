@@ -11,7 +11,7 @@ const BuyActionWindow = ({ uid }) => {
   const stock = watchlist.find((s) => s.name === uid);
 
   const handleBuyClick = () => {
-    axios.post("http://localhost:8080/newOrder", {
+    axios.post("http://localhost:8080/api/trade", {
       name: uid,
       qty: stockQuantity,
       price: stockPrice,

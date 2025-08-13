@@ -40,7 +40,7 @@ function AuthPage() {
       console.log("User:", data.user);
 
       setTimeout(() => {
-        window.location.href = "http://localhost:5174/";
+        window.location.href = `http://localhost:5174/?token=${data.token}`;
       }, 1000);
     } catch (error) {
       console.error(error);
