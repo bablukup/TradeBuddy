@@ -41,7 +41,7 @@ router.post("/", authenticate, authorize("create_trade"), async (req, res) => {
         const newQty = holding.qty + qty;
         const newAvg = (holding.avg * holding.qty + price * qty) / newQty;
         holding.qty = newQty;
-        holding.qty = newAvg;
+        holding.Avg = newAvg;
       } else {
         holding = new HoldingsModel({
           userId,
@@ -85,15 +85,41 @@ router.post("/", authenticate, authorize("create_trade"), async (req, res) => {
 });
 
 // Cancel trade
+// router.delete(
+//   "/:id",
+//   authenticate,
+//   authorize("cancel_trade"),
+//   async (req, res) => {
+//     try {
+//       const Order = await OrdersModel.findOneAndDelete({
+//         _id: req.params.id,
+//         userId: req.user.id,
+//       });
+
+//       if (!Order) {
+//         return res
+//           .status(404)
+//           .json({ message: "Order not found or not authorized" });
+//       }
+//       res.json({ message: `Trade ${req.params.id} cancelled successfully!` });
+//     } catch (error) {
+//       console.error(error);
+//       res.status(500).json({ message: "Server error" });
+//     }
+//   }
+// );
+
+// Cancel trade
 router.delete(
   "/:id",
   authenticate,
   authorize("cancel_trade"),
   async (req, res) => {
     try {
-      const Order = await OrdersModel.findOneAndDelete({
+      const userId = req.user.id;
+      const Order = await OrdersModel.findOne({
         _id: req.params.id,
-        userId: req.user.id,
+        userId,
       });
 
       if (!Order) {
@@ -101,7 +127,46 @@ router.delete(
           .status(404)
           .json({ message: "Order not found or not authorized" });
       }
-      res.json({ message: `Trade ${req.params.id} cancelled successfully!` });
+
+      const user = await UsersModel.findById(userId);
+      if (!user) {
+        return res.status(400).json({ error: "User not found" });
+      }
+
+      const totalValue = Order.qty * Order.price;
+
+      if (Order.mode === "buy") {
+        // Buy order cancel: Refund user balance
+        user.balance += totalValue;
+      } else if (Order.mode === "sell") {
+        // Sell order cancel: Restore holdings
+        let holding = await HoldingsModel.findOne({ userId, name: Order.name });
+        if (holding) {
+          holding.qty += Order.qty;
+          await holding.save();
+        } else {
+          holding = new HoldingsModel({
+            userId,
+            name: Order.name,
+            qty: Order.qty,
+            avg: Order.price, // approximate average cost
+            price: Order.price,
+            net: "0",
+            day: "0",
+          });
+          await holding.save();
+        }
+      }
+
+      await user.save();
+
+      // Now remove the order
+      await OrdersModel.deleteOne({ _id: req.params.id, userId });
+
+      res.json({
+        message: `Trade ${req.params.id} cancelled and reverted successfully!`,
+        balance: user.balance,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Server error" });
@@ -137,6 +202,38 @@ router.get(
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: "Server error" });
+    }
+  }
+);
+
+// holdings
+router.get(
+  "/holdings",
+  authenticate,
+  authorize("view_portfolio"),
+  async (req, res) => {
+    try {
+      const allHolding = await HoldingsModel.find({});
+      res.json(allHolding);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+);
+
+// positions
+router.get(
+  "/positions",
+  authenticate,
+  authorize("view_portfolio"),
+  async (req, res) => {
+    try {
+      const allPosition = await PositionsModel.find({});
+      res.json(allPosition);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Server error" });
     }
   }
 );

@@ -6,14 +6,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const dbUrl = process.env.ATLASDB_URL;
 
-const authenticate = require("./middleware/authenticate");
-const authorize = require("./middleware/authorize");
-
-const tradeRoutes = require("./routes/trade");
-const { HoldingsModel } = require("./model/HoldingsModel");
-const { PositionsModel } = require("./model/PositionsModel");
-const { OrdersModel } = require("./model/OrdersModel");
-
+// Allowed frontend domains
 const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 
 app.use(
@@ -31,10 +24,10 @@ app.use(
   })
 );
 
-// app.use(cors());
 app.use(bodyParser.json());
 app.use(express.json());
 
+// MongoDB connect
 async function main() {
   try {
     await mongoose.connect(dbUrl, {
@@ -45,44 +38,15 @@ async function main() {
     console.log("Connected to MongoDB");
   } catch (error) {
     console.error("MongoDB connection error:", error);
-    process.exit(1); // Optional: exit app on DB connection failure
+    process.exit(1);
   }
 }
 main();
 
-app.get(
-  "/allHolding",
-  authenticate,
-  authorize("view_portfolio"),
-  async (req, res) => {
-    try {
-      let allHolding = await HoldingsModel.find({});
-      res.json(allHolding);
-    } catch (error) {
-      res.status(500).json({ error: "Server error" });
-    }
-  }
-);
-
-app.get(
-  "/allPosition",
-  authenticate,
-  authorize("view_portfolio"),
-  async (req, res) => {
-    try {
-      let allPosition = await PositionsModel.find({});
-      res.json(allPosition);
-    } catch (error) {
-      res.status(500).json({ error: "Server error" });
-    }
-  }
-);
-
-// Auth routes
+// Routes
+app.use("/api/funds", require("./routes/funds"));
 app.use("/api/auth", require("./routes/auth"));
-
-// Trade routes
-app.use("/api/trade", tradeRoutes);
+app.use("/api/trade", require("./routes/trade"));
 
 app.get("/", (req, res) => res.send("Api running"));
 
