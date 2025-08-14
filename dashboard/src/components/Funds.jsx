@@ -1,11 +1,53 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Funds = () => {
+  const [funds, setFunds] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const BASE_URL =
+    import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:8080";
+
+  const formatCurrency = (num) => {
+    if (num === undefined || num === null) return "—";
+    return num.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+    });
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setError("Please login to view funds");
+      setLoading(false);
+      return;
+    }
+
+    axios
+      .get(`${BASE_URL}/api/funds`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        setFunds(res.data);
+        setError("");
+      })
+      .catch(() => {
+        setError("Error fetching funds");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <p>⏳ Loading funds...</p>;
+  if (error) return <p style={{ color: "red" }}>{error}</p>;
+
   return (
     <>
       <div className="funds">
-        <p>Instant, zero-cost fund transfers with UPI </p>
+        <p>Instant, zero-cost fund transfers with UPI</p>
         <Link className="btn btn-green">Add funds</Link>
         <Link className="btn btn-blue">Withdraw</Link>
       </div>
@@ -19,57 +61,49 @@ const Funds = () => {
           <div className="table">
             <div className="data">
               <p>Available margin</p>
-              <p className="imp colored">4,043.10</p>
+              <p className="imp colored">
+                {formatCurrency(funds.availableMargin)}
+              </p>
             </div>
             <div className="data">
               <p>Used margin</p>
-              <p className="imp">3,757.30</p>
+              <p className="imp">{formatCurrency(funds.usedMargin)}</p>
             </div>
             <div className="data">
               <p>Available cash</p>
-              <p className="imp">4,043.10</p>
+              <p className="imp">{formatCurrency(funds.availableCash)}</p>
             </div>
             <hr />
             <div className="data">
               <p>Opening Balance</p>
-              <p>4,043.10</p>
+              <p>{formatCurrency(funds.openingBalance)}</p>
             </div>
             <div className="data">
-              <p>Opening Balance</p>
-              <p>3736.40</p>
+              <p>Holdings Value</p>
+              <p>{formatCurrency(funds.holdingsValue)}</p>
             </div>
             <div className="data">
-              <p>Payin</p>
-              <p>4064.00</p>
+              <p>Investment</p>
+              <p>{formatCurrency(funds.investment)}</p>
             </div>
             <div className="data">
-              <p>SPAN</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Delivery margin</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Exposure</p>
-              <p>0.00</p>
-            </div>
-            <div className="data">
-              <p>Options premium</p>
-              <p>0.00</p>
+              <p>P&L</p>
+              <p className={funds.pnl >= 0 ? "profit" : "loss"}>
+                {formatCurrency(funds.pnl)} ({funds.pnlPercent}%)
+              </p>
             </div>
             <hr />
             <div className="data">
               <p>Collateral (Liquid funds)</p>
-              <p>0.00</p>
+              <p>{formatCurrency(funds.collateralLiquid)}</p>
             </div>
             <div className="data">
               <p>Collateral (Equity)</p>
-              <p>0.00</p>
+              <p>{formatCurrency(funds.collateralEquity)}</p>
             </div>
             <div className="data">
               <p>Total Collateral</p>
-              <p>0.00</p>
+              <p>{formatCurrency(funds.totalCollateral)}</p>
             </div>
           </div>
         </div>

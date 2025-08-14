@@ -1,111 +1,71 @@
-// src/components/GeneralContextProvider.jsx
-import React, { useState, createContext, useEffect } from "react";
+import React, { useState, createContext, useCallback, useEffect } from "react";
 import BuyActionWindow from "./BuyActionWindow";
 import SellActionWindow from "./SellActionWindow";
 
-export const GeneralContext = createContext({
-  openBuyWindow: (uid) => {},
-  closeBuyWindow: () => {},
-  openSellWindow: (uid) => {},
-  closeSellWindow: () => {},
-  setDefaultUID: (uid) => {}, // for hotkeys fallback
-  selectedStockUID: "",
-});
+export const GeneralContext = createContext(null);
 
-const GeneralContextProvider = (props) => {
-  const [isBuyWindowOpen, setIsBuyWindowOpen] = useState(false);
-  const [isSellWindowOpen, setIsSellWindowOpen] = useState(false);
+const GeneralContextProvider = ({ children }) => {
+  const [windowType, setWindowType] = useState(null); // 'buy' | 'sell' | null
   const [selectedStockUID, setSelectedStockUID] = useState("");
-  const [defaultUID, setDefaultUID] = useState(""); // fallback for hotkeys
+  const [defaultUID, setDefaultUID] = useState("");
 
-  const openBuyWindow = (uid) => {
+  const openWindow = useCallback((type, uid) => {
     if (!uid) return;
     setSelectedStockUID(uid);
-    if (isSellWindowOpen) setIsSellWindowOpen(false); // ensure sell closes
-    setIsBuyWindowOpen(true);
-  };
+    setWindowType(type);
+  }, []);
 
-  const closeBuyWindow = () => {
-    setIsBuyWindowOpen(false);
-    // selectedStockUID ko preserve rehne do taaki B/S toggle bina hover ke ho sake
-    // setSelectedStockUID("");
-  };
+  const closeWindow = useCallback(() => {
+    setWindowType(null);
+  }, []);
 
-  const openSellWindow = (uid) => {
-    if (!uid) return;
-    setSelectedStockUID(uid);
-    if (isBuyWindowOpen) setIsBuyWindowOpen(false); // ensure buy closes
-    setIsSellWindowOpen(true);
-  };
-
-  const closeSellWindow = () => {
-    setIsSellWindowOpen(false);
-    // setSelectedStockUID("");
-  };
-
-  // Global hotkeys: B/b = Buy, S/s = Sell, Esc = Close
-  useEffect(() => {
-    const onKeyDown = (e) => {
+  // Global hotkeys
+  const onKeyDown = useCallback(
+    (e) => {
       const el = e.target;
-      // ignore when typing
       if (
         el &&
         (el.tagName === "INPUT" ||
           el.tagName === "TEXTAREA" ||
           el.isContentEditable)
-      ) {
+      )
         return;
-      }
 
-      const key = e.key;
-      // Resolve target: last selected → default watchlist item
       const targetUID = selectedStockUID || defaultUID;
+      if (!targetUID) return;
 
-      if (key === "b" || key === "B") {
-        if (targetUID) {
-          if (isSellWindowOpen) setIsSellWindowOpen(false);
-          openBuyWindow(targetUID);
-        }
-      } else if (key === "s" || key === "S") {
-        if (targetUID) {
-          if (isBuyWindowOpen) setIsBuyWindowOpen(false);
-          openSellWindow(targetUID);
-        }
-      } else if (key === "Escape") {
-        let anyClosed = false;
-        if (isBuyWindowOpen) {
-          setIsBuyWindowOpen(false);
-          anyClosed = true;
-        }
-        if (isSellWindowOpen) {
-          setIsSellWindowOpen(false);
-          anyClosed = true;
-        }
-        // Agar dono band hue to selection clear (taaki next B/S default par jaye)
-        if (anyClosed) {
-          setSelectedStockUID("");
-        }
+      if (e.key.toLowerCase() === "b") {
+        openWindow("buy", targetUID);
+      } else if (e.key.toLowerCase() === "s") {
+        openWindow("sell", targetUID);
+      } else if (e.key === "Escape") {
+        closeWindow();
       }
-    };
+    },
+    [selectedStockUID, defaultUID, openWindow, closeWindow]
+  );
 
+  useEffect(() => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectedStockUID, defaultUID, isBuyWindowOpen, isSellWindowOpen]);
+  }, [onKeyDown]);
 
   return (
     <GeneralContext.Provider
       value={{
-        openBuyWindow,
-        closeBuyWindow,
-        openSellWindow,
-        closeSellWindow,
-        setDefaultUID, // call from WatchList mount
+        openBuyWindow: (uid) => openWindow("buy", uid),
+        openSellWindow: (uid) => openWindow("sell", uid),
+        closeBuyWindow: closeWindow,
+        closeSellWindow: closeWindow,
+        setDefaultUID,
         selectedStockUID,
+        isBuyWindowOpen: windowType === "buy",
+        isSellWindowOpen: windowType === "sell",
       }}
     >
-      {props.children}
-      {isBuyWindowOpen && <BuyActionWindow uid={selectedStockUID} />}
-      {isSellWindowOpen && <SellActionWindow uid={selectedStockUID} />}
+      {children}
+      {windowType === "buy" && <BuyActionWindow uid={selectedStockUID} />}
+      {windowType === "sell" && <SellActionWindow uid={selectedStockUID} />}
     </GeneralContext.Provider>
   );
 };

@@ -38,8 +38,8 @@ router.post("/", authenticate, authorize("create_trade"), async (req, res) => {
 
     if (mode === "buy") {
       if (holding) {
-        const newQty = holding.aty + qty;
-        const newAvg = (holding.avg * holding.aty + price * qty) / newQty;
+        const newQty = holding.qty + qty;
+        const newAvg = (holding.avg * holding.qty + price * qty) / newQty;
         holding.qty = newQty;
         holding.qty = newAvg;
       } else {
