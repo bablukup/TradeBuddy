@@ -85,31 +85,6 @@ router.post("/", authenticate, authorize("create_trade"), async (req, res) => {
 });
 
 // Cancel trade
-// router.delete(
-//   "/:id",
-//   authenticate,
-//   authorize("cancel_trade"),
-//   async (req, res) => {
-//     try {
-//       const Order = await OrdersModel.findOneAndDelete({
-//         _id: req.params.id,
-//         userId: req.user.id,
-//       });
-
-//       if (!Order) {
-//         return res
-//           .status(404)
-//           .json({ message: "Order not found or not authorized" });
-//       }
-//       res.json({ message: `Trade ${req.params.id} cancelled successfully!` });
-//     } catch (error) {
-//       console.error(error);
-//       res.status(500).json({ message: "Server error" });
-//     }
-//   }
-// );
-
-// Cancel trade
 router.delete(
   "/:id",
   authenticate,
