@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "./Summary.css";
 
 const Summary = () => {
   const [user, setUser] = useState(null);
@@ -15,7 +16,6 @@ const Summary = () => {
   const portfolioUrl = `${BASE_URL}/api/trade/portfolio`;
   const historyUrl = `${BASE_URL}/api/trade/history`;
 
-  // Load token
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     if (savedToken) {
@@ -26,7 +26,6 @@ const Summary = () => {
     }
   }, []);
 
-  // Fetch all data after token is available
   useEffect(() => {
     if (!token) return;
 
@@ -56,42 +55,32 @@ const Summary = () => {
       });
   }, [token]);
 
-  if (loading) return <div>(Loading...)</div>;
-  if (error) return <div style={{ color: "red" }}>({error})</div>;
-  if (!user) return <div>No data available</div>;
+  if (loading) return <div className="loading">Loading...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!user) return <div className="no-data">No data available</div>;
 
   return (
-    <>
+    <div className="summary-container">
       <div className="username">
-        <h6>Hi, {user.username || "Data not available dynamically"} 👋</h6>
+        <h6>Hi, {user.username || "Data not available"} 👋</h6>
         <hr className="divider" />
       </div>
 
       <div className="section">
-        <span>
-          <p>Equity</p>
-        </span>
-
+        <span className="section-title">Equity</span>
         <div className="data">
           <div className="first">
-            <h3>
-              {user.balance
-                ? `${user.balance}k`
-                : "Data not available dynamically"}
-            </h3>
+            <h3>{user.balance ? `₹${user.balance}` : "Data not available"}</h3>
             <p>Margin available</p>
           </div>
-          <hr />
           <div className="second">
             <p>
-              Margins used <span>Data not available dynamically</span>
+              Margins used <span>Data not available</span>
             </p>
             <p>
               Opening balance{" "}
               <span>
-                {user.balance
-                  ? `${user.balance}k`
-                  : "Data not available dynamically"}
+                {user.balance ? `₹${user.balance}` : "Data not available"}
               </span>
             </p>
           </div>
@@ -100,52 +89,48 @@ const Summary = () => {
       </div>
 
       <div className="section">
-        <span>
-          <p>Holdings</p>
-        </span>
-
+        <span className="section-title">Holdings</span>
         <div className="data">
           <div className="first">
             <h3 className="profit">
               {portfolio.length
-                ? `${portfolio.reduce(
+                ? `₹${portfolio.reduce(
                     (sum, item) => sum + item.qty * item.price,
                     0
-                  )}k`
-                : "Data not available dynamically"}{" "}
-              <small>+Data not available dynamically</small>
+                  )}`
+                : "Data not available"}{" "}
+              <small>+Data not available</small>
             </h3>
             <p>P&L</p>
           </div>
-          <hr />
           <div className="second">
             <p>
               Current Value{" "}
               <span>
                 {portfolio.length
-                  ? `${portfolio.reduce(
+                  ? `₹${portfolio.reduce(
                       (sum, item) => sum + item.qty * item.price,
                       0
-                    )}k`
-                  : "Data not available dynamically"}
+                    )}`
+                  : "Data not available"}
               </span>
             </p>
             <p>
               Investment{" "}
               <span>
                 {portfolio.length
-                  ? `${portfolio.reduce(
+                  ? `₹${portfolio.reduce(
                       (sum, item) => sum + item.qty * item.avg,
                       0
-                    )}k`
-                  : "Data not available dynamically"}
+                    )}`
+                  : "Data not available"}
               </span>
             </p>
           </div>
         </div>
         <hr className="divider" />
       </div>
-    </>
+    </div>
   );
 };
 
