@@ -33,7 +33,7 @@ router.get("/quote/:symbol", async (req, res) => {
 
   const cacheKey = symbol.toUpperCase();
 
-  // Check cache
+  // Check
   const cachedData = cache.get(cacheKey);
   if (cachedData) {
     return res.json({

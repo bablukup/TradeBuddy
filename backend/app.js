@@ -2,8 +2,6 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 require("dotenv").config();
-
-// const bodyParser = require("body-parser");
 const cors = require("cors");
 const finnhub = require("./services/finnhub");
 
@@ -27,7 +25,6 @@ app.use(
   })
 );
 
-// app.use(bodyParser.json());
 app.use(express.json());
 
 // MongoDB connect
@@ -65,12 +62,6 @@ app.get("/quote/:symbol", async (req, res) => {
       .json({ success: false, error: "API error", details: err.message });
   }
 });
-
-// Optional: Check API key is loaded (debug purpose)
-console.log(
-  "Finnhub API Key:",
-  process.env.FINNHUB_API_KEY ? "Loaded" : "Missing"
-);
 
 app.listen(8080, () => {
   console.log("root is working");

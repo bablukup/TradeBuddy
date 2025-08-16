@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import DoughnutChart from "/charts/doughnut";
+
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+ChartJS.register(ArcElement, Tooltip, Legend);
 
 const Holdings = () => {
   const [allHoldings, setAllHoldings] = useState([]);
@@ -48,6 +52,32 @@ const Holdings = () => {
     const interval = setInterval(fetchHoldings, 10000); // refresh every 10s
     return () => clearInterval(interval);
   }, []);
+
+  // *** New function added for chart data ***
+  const getHoldingChartData = () => {
+    return {
+      labels: allHoldings.map((item) => item.name || "Unknown"),
+      datasets: [
+        {
+          label: "Holdings Value",
+          data: allHoldings.map((item) => {
+            const price = safeValue(item.price);
+            const qty = safeValue(item.qty);
+            return price * qty;
+          }),
+          backgroundColor: [
+            "#36A2EB",
+            "#FF6384",
+            "#FFCE56",
+            "#4BC0C0",
+            "#9966FF",
+            "#FF9F40",
+          ],
+          borderWidth: 1,
+        },
+      ],
+    };
+  };
 
   const totalInvestment = allHoldings.reduce(
     (sum, s) => sum + safeValue(s.avg) * safeValue(s.qty),
@@ -115,7 +145,6 @@ const Holdings = () => {
         </table>
       </div>
 
-      {/* Summary Section */}
       <div className="row">
         <div className="col">
           <h5>{formatCurrency(totalInvestment)}</h5>
@@ -131,6 +160,10 @@ const Holdings = () => {
           </h5>
           <p>P&L</p>
         </div>
+      </div>
+      {/* New Doughnut Chart added */}
+      <div style={{ maxWidth: "400px", margin: "auto", paddingBottom: "2rem" }}>
+        <DoughnutChart data={getHoldingChartData()} />
       </div>
     </>
   );
