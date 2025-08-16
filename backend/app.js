@@ -2,8 +2,11 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 require("dotenv").config();
-const bodyParser = require("body-parser");
+
+// const bodyParser = require("body-parser");
 const cors = require("cors");
+const finnhub = require("./services/finnhub");
+
 const dbUrl = process.env.ATLASDB_URL;
 
 // Allowed frontend domains
@@ -24,7 +27,7 @@ app.use(
   })
 );
 
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
 app.use(express.json());
 
 // MongoDB connect
@@ -49,6 +52,25 @@ app.use("/api/auth", require("./routes/auth"));
 app.use("/api/trade", require("./routes/trade"));
 
 app.get("/", (req, res) => res.send("Api running"));
+
+//funnhub
+app.get("/quote/:symbol", async (req, res) => {
+  try {
+    const symbol = req.params.symbol;
+    const data = await finnhub.fetchQuote(symbol);
+    res.json({ success: true, symbol, data });
+  } catch (err) {
+    res
+      .status(500)
+      .json({ success: false, error: "API error", details: err.message });
+  }
+});
+
+// Optional: Check API key is loaded (debug purpose)
+console.log(
+  "Finnhub API Key:",
+  process.env.FINNHUB_API_KEY ? "Loaded" : "Missing"
+);
 
 app.listen(8080, () => {
   console.log("root is working");

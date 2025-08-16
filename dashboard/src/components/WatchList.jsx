@@ -1,7 +1,133 @@
-// src/components/WatchList.jsx
+// import React, { useState, useContext, useEffect } from "react";
+// import { Tooltip, Grow } from "@mui/material";
+// import { watchlist } from "../data/data";
+// import {
+//   BarChartOutlined,
+//   KeyboardArrowDown,
+//   KeyboardArrowUp,
+//   MoreHoriz,
+// } from "@mui/icons-material";
+// import { GeneralContext } from "./GeneralContextProvider";
+
+// const WatchList = () => {
+//   const { setDefaultUID } = useContext(GeneralContext);
+
+//   useEffect(() => {
+//     if (watchlist && watchlist.length > 0) {
+//       // NOTE: If your UID field is different (e.g., stock.uid), replace .name below
+//       setDefaultUID(watchlist[0].name);
+//     } else {
+//       setDefaultUID("");
+//     }
+//   }, [setDefaultUID]);
+
+//   return (
+//     <div className="watchlist-container">
+//       <div className="search-container">
+//         <input
+//           type="text"
+//           name="search"
+//           id="search"
+//           placeholder="Search eg:infy, bse, nifty fut weekly, gold mcx"
+//           className="search"
+//         />
+//         <span className="counts"> {watchlist.length} / 50</span>
+//       </div>
+
+//       <ul className="list">
+//         {watchlist.map((stock, index) => (
+//           <WatchListItem stock={stock} key={index} />
+//         ))}
+//       </ul>
+//     </div>
+//   );
+// };
+
+// export default WatchList;
+
+// const WatchListItem = ({ stock }) => {
+//   const [ShowWatchlistActions, setShowWatchlistActions] = useState(false);
+
+//   const handleMouseEnter = () => {
+//     setShowWatchlistActions(true);
+//   };
+
+//   const handleMouseExit = () => {
+//     setShowWatchlistActions(false);
+//   };
+
+//   return (
+//     <li onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseExit}>
+//       <div className="item">
+//         <p className={stock.isDown ? "down" : "up"}>{stock.name}</p>
+//         <div className="itemInfo">
+//           <span className="percent">{stock.percent}</span>
+//           {stock.isDown ? (
+//             <KeyboardArrowDown className="down" />
+//           ) : (
+//             <KeyboardArrowUp className="down" />
+//           )}
+//           <span className="price">{stock.price}</span>
+//         </div>
+//       </div>
+//       {ShowWatchlistActions && <WatchListActions uid={stock.name} />}
+//     </li>
+//   );
+// };
+
+// const WatchListActions = ({ uid }) => {
+//   const { openBuyWindow, openSellWindow } = useContext(GeneralContext);
+
+//   return (
+//     <span className="actions">
+//       <span>
+//         <Tooltip
+//           title="Buy (B)"
+//           placement="top"
+//           arrow
+//           TransitionComponent={Grow}
+//         >
+//           <button className="buy" onClick={() => openBuyWindow(uid)}>
+//             Buy
+//           </button>
+//         </Tooltip>
+//         <Tooltip
+//           title="Sell (S)"
+//           placement="top"
+//           arrow
+//           TransitionComponent={Grow}
+//         >
+//           <button className="sell" onClick={() => openSellWindow(uid)}>
+//             Sell
+//           </button>
+//         </Tooltip>
+//         <Tooltip
+//           title="Analytics (A)"
+//           placement="top"
+//           arrow
+//           TransitionComponent={Grow}
+//         >
+//           <button className="action">
+//             <BarChartOutlined className="icon" />
+//           </button>
+//         </Tooltip>
+//         <Tooltip
+//           title="More (A)"
+//           placement="top"
+//           arrow
+//           TransitionComponent={Grow}
+//         >
+//           <button className="action">
+//             <MoreHoriz className="icon" />
+//           </button>
+//         </Tooltip>
+//       </span>
+//     </span>
+//   );
+// };
+
 import React, { useState, useContext, useEffect } from "react";
 import { Tooltip, Grow } from "@mui/material";
-import { watchlist } from "../data/data";
 import {
   BarChartOutlined,
   KeyboardArrowDown,
@@ -10,16 +136,64 @@ import {
 } from "@mui/icons-material";
 import { GeneralContext } from "./GeneralContextProvider";
 
+const symbols = [
+  "INFY.NSE",
+  "ONGC.NSE",
+  "TCS.NSE",
+  "KPITTECH.NSE",
+  "QUICKHEAL.NSE",
+  "WIPRO.NSE",
+  "M&M.NSE",
+  "RELIANCE.NSE",
+  "HINDUNILVR.NSE",
+];
+
+const BACKEND_URL = "http://localhost:8080"; // Apne backend ka URL yahan lagao
+
 const WatchList = () => {
   const { setDefaultUID } = useContext(GeneralContext);
+  const [stocks, setStocks] = useState([]);
 
   useEffect(() => {
-    if (watchlist && watchlist.length > 0) {
-      // NOTE: If your UID field is different (e.g., stock.uid), replace .name below
-      setDefaultUID(watchlist[0].name);
-    } else {
-      setDefaultUID("");
+    async function fetchQuotes() {
+      try {
+        const results = await Promise.all(
+          symbols.map(async (symbol) => {
+            const res = await fetch(`${BACKEND_URL}/quote/${symbol}`);
+            const json = await res.json();
+
+            if (json.success && json.data) {
+              return {
+                name: symbol.replace(".NSE", ""),
+                price: json.data.price || "-",
+                percent: json.data.percent || "-",
+                isDown: json.data.isDown || false,
+              };
+            }
+            // Agar data na mile toh fallback
+            return {
+              name: symbol.replace(".NSE", ""),
+              price: "-",
+              percent: "-",
+              isDown: false,
+            };
+          })
+        );
+        setStocks(results);
+
+        if (results.length > 0) {
+          setDefaultUID(results[0].name);
+        } else {
+          setDefaultUID("");
+        }
+      } catch (error) {
+        console.error("Error fetching quotes:", error);
+        setStocks([]);
+        setDefaultUID("");
+      }
     }
+
+    fetchQuotes();
   }, [setDefaultUID]);
 
   return (
@@ -32,11 +206,11 @@ const WatchList = () => {
           placeholder="Search eg:infy, bse, nifty fut weekly, gold mcx"
           className="search"
         />
-        <span className="counts"> {watchlist.length} / 50</span>
+        <span className="counts"> {stocks.length} / 50</span>
       </div>
 
       <ul className="list">
-        {watchlist.map((stock, index) => (
+        {stocks.map((stock, index) => (
           <WatchListItem stock={stock} key={index} />
         ))}
       </ul>
@@ -44,21 +218,14 @@ const WatchList = () => {
   );
 };
 
-export default WatchList;
-
 const WatchListItem = ({ stock }) => {
   const [ShowWatchlistActions, setShowWatchlistActions] = useState(false);
 
-  const handleMouseEnter = () => {
-    setShowWatchlistActions(true);
-  };
-
-  const handleMouseExit = () => {
-    setShowWatchlistActions(false);
-  };
-
   return (
-    <li onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseExit}>
+    <li
+      onMouseEnter={() => setShowWatchlistActions(true)}
+      onMouseLeave={() => setShowWatchlistActions(false)}
+    >
       <div className="item">
         <p className={stock.isDown ? "down" : "up"}>{stock.name}</p>
         <div className="itemInfo">
@@ -66,7 +233,7 @@ const WatchListItem = ({ stock }) => {
           {stock.isDown ? (
             <KeyboardArrowDown className="down" />
           ) : (
-            <KeyboardArrowUp className="down" />
+            <KeyboardArrowUp className="up" />
           )}
           <span className="price">{stock.price}</span>
         </div>
@@ -81,48 +248,43 @@ const WatchListActions = ({ uid }) => {
 
   return (
     <span className="actions">
-      <span>
-        <Tooltip
-          title="Buy (B)"
-          placement="top"
-          arrow
-          TransitionComponent={Grow}
-        >
-          <button className="buy" onClick={() => openBuyWindow(uid)}>
-            Buy
-          </button>
-        </Tooltip>
-        <Tooltip
-          title="Sell (S)"
-          placement="top"
-          arrow
-          TransitionComponent={Grow}
-        >
-          <button className="sell" onClick={() => openSellWindow(uid)}>
-            Sell
-          </button>
-        </Tooltip>
-        <Tooltip
-          title="Analytics (A)"
-          placement="top"
-          arrow
-          TransitionComponent={Grow}
-        >
-          <button className="action">
-            <BarChartOutlined className="icon" />
-          </button>
-        </Tooltip>
-        <Tooltip
-          title="More (A)"
-          placement="top"
-          arrow
-          TransitionComponent={Grow}
-        >
-          <button className="action">
-            <MoreHoriz className="icon" />
-          </button>
-        </Tooltip>
-      </span>
+      <Tooltip title="Buy (B)" placement="top" arrow TransitionComponent={Grow}>
+        <button className="buy" onClick={() => openBuyWindow(uid)}>
+          Buy
+        </button>
+      </Tooltip>
+      <Tooltip
+        title="Sell (S)"
+        placement="top"
+        arrow
+        TransitionComponent={Grow}
+      >
+        <button className="sell" onClick={() => openSellWindow(uid)}>
+          Sell
+        </button>
+      </Tooltip>
+      <Tooltip
+        title="Analytics (A)"
+        placement="top"
+        arrow
+        TransitionComponent={Grow}
+      >
+        <button className="action">
+          <BarChartOutlined className="icon" />
+        </button>
+      </Tooltip>
+      <Tooltip
+        title="More (A)"
+        placement="top"
+        arrow
+        TransitionComponent={Grow}
+      >
+        <button className="action">
+          <MoreHoriz className="icon" />
+        </button>
+      </Tooltip>
     </span>
   );
 };
+
+export default WatchList;
