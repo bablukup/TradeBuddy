@@ -20,7 +20,7 @@ function AuthPage() {
     e.preventDefault();
 
     try {
-      let url = isSignup
+      const url = isSignup
         ? "http://localhost:8080/api/auth/register"
         : "http://localhost:8080/api/auth/login";
 
@@ -36,7 +36,6 @@ function AuthPage() {
       setMessageType("success");
 
       localStorage.setItem("token", data.token);
-
       console.log("User:", data.user);
 
       setTimeout(() => {
@@ -71,6 +70,7 @@ function AuthPage() {
               value={formData.username}
               onChange={handleChange}
               required
+              autoComplete="username"
             />
           </div>
         )}
@@ -84,6 +84,7 @@ function AuthPage() {
             value={formData.email}
             onChange={handleChange}
             required
+            autoComplete="email"
           />
         </div>
 
@@ -96,6 +97,7 @@ function AuthPage() {
             value={formData.password}
             onChange={handleChange}
             required
+            autoComplete={isSignup ? "new-password" : "current-password"}
           />
         </div>
 
