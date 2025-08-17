@@ -1,25 +1,30 @@
 import React from "react";
 
-function OpneAccount() {
+function OpenAccount() {
   return (
-    <>
-      <div className="Container p-5 mb-5">
-        <div className="row text-Center">
-          <h1 className="mt-5 fw-bold">Open a TradeBuddy account</h1>
-          <p className="mt-2 mb-4">
+    <div className="container mb-5">
+      <div className="row justify-content-center">
+        <div className="col-12 col-md-8 text-center p-5">
+          <h1 className="fw-bold mt-4 mb-3">Open a TradeBuddy account</h1>
+          <p className="mb-4">
             Discover TradeBuddy’s intuitive, transparent, and powerful investing
             features that simplify your journey.
           </p>
           <button
-            className="btn btn-primary p-2 fs-5 mb-5"
-            style={{ width: "20%", margin: "0 auto" }}
+            className="btn btn-primary btn-lg px-5 mb-4"
+            style={{
+              borderRadius: "50px",
+              maxWidth: "300px",
+              width: "100%",
+              margin: "0 auto",
+            }}
           >
             Sign Up Now
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
-export default OpneAccount;
+export default OpenAccount;

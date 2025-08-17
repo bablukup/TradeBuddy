@@ -45,14 +45,16 @@ const Orders = () => {
   };
 
   if (loading) {
-    return <p className="text-center mt-4">⏳ Loading orders...</p>;
+    return (
+      <p className="text-center mt-5 fs-5 text-muted">⏳ Loading orders...</p>
+    );
   }
 
   if (error) {
     return (
-      <div className="text-center mt-4">
-        <p className="text-danger fw-bold">{error}</p>
-        <Link to="/" className="btn btn-success mt-2">
+      <div className="text-center mt-5">
+        <p className="text-danger fw-bold fs-5">{error}</p>
+        <Link to="/" className="btn btn-outline-success mt-3">
           Back to Home
         </Link>
       </div>
@@ -61,9 +63,11 @@ const Orders = () => {
 
   if (orders.length === 0) {
     return (
-      <div className="text-center mt-4">
-        <p className="fw-semibold">📭 You haven't placed any orders today</p>
-        <Link to="/" className="btn btn-success mt-2">
+      <div className="text-center mt-5">
+        <p className="fw-semibold text-muted fs-5">
+          📭 You haven't placed any orders today
+        </p>
+        <Link to="/" className="btn btn-outline-primary mt-3">
           Get started
         </Link>
       </div>
@@ -71,12 +75,12 @@ const Orders = () => {
   }
 
   return (
-    <div className="container my-4">
-      <h2 className="mb-3 fw-bold text-primary">📑 Your Orders</h2>
-      <div className="table-responsive shadow rounded">
-        <table className="table table-hover align-middle">
+    <div className="container my-5">
+      <h2 className="mb-4 fw-bold text text-center"> Your Orders</h2>
+      <div className="table-responsive rounded shadow-sm">
+        <table className="table table-borderless table-hover align-middle">
           <thead className="table-light">
-            <tr>
+            <tr className="text-center">
               <th>Stock</th>
               <th>Qty</th>
               <th>Price</th>
@@ -86,13 +90,13 @@ const Orders = () => {
           </thead>
           <tbody>
             {orders.map((order) => (
-              <tr key={order._id}>
-                <td>{order.name}</td>
+              <tr key={order._id} className="text-center">
+                <td className="fw-semibold">{order.name}</td>
                 <td>{order.qty}</td>
                 <td>₹{order.price}</td>
                 <td>
                   <span
-                    className={`badge ${
+                    className={`badge rounded-pill ${
                       order.mode === "buy"
                         ? "bg-success-subtle text-success"
                         : "bg-danger-subtle text-danger"
@@ -101,7 +105,9 @@ const Orders = () => {
                     {order.mode}
                   </span>
                 </td>
-                <td>{formatDateTime(order.createdAt)}</td>
+                <td className="text-muted">
+                  {formatDateTime(order.createdAt)}
+                </td>
               </tr>
             ))}
           </tbody>
