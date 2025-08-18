@@ -53,18 +53,15 @@ const Holdings = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // *** New function added for chart data ***
   const getHoldingChartData = () => {
     return {
       labels: allHoldings.map((item) => item.name || "Unknown"),
       datasets: [
         {
           label: "Holdings Value",
-          data: allHoldings.map((item) => {
-            const price = safeValue(item.price);
-            const qty = safeValue(item.qty);
-            return price * qty;
-          }),
+          data: allHoldings.map(
+            (item) => safeValue(item.price) * safeValue(item.qty)
+          ),
           backgroundColor: [
             "#36A2EB",
             "#FF6384",
@@ -90,23 +87,78 @@ const Holdings = () => {
   const pnl = currentValue - totalInvestment;
   const pnlPercent = totalInvestment > 0 ? (pnl / totalInvestment) * 100 : 0;
 
-  if (loading) return <p>⏳ Loading holdings...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (loading)
+    return (
+      <div className="text-center pt-5">
+        <div
+          className="spinner-border text-primary"
+          role="status"
+          style={{ width: "2.5rem", height: "2.5rem" }}
+        >
+          <span className="visually-hidden">Loading...</span>
+        </div>
+        <div className="mt-3 fw-semibold text-secondary">Loading data...</div>
+      </div>
+    );
+  if (error)
+    return <p className="text-center mt-5 text-danger fw-semibold">{error}</p>;
 
   return (
-    <>
-      <h3 className="title">Holdings ({allHoldings.length})</h3>
+    <div className="container py-4">
+      <h3 className="mb-4 fw-bold text-primary">
+        Holdings ({allHoldings.length})
+      </h3>
+      <div className="row g-3 mb-4">
+        <div className="col-12 col-md-4">
+          <div className="border rounded p-3 text-center h-100 bg-white shadow-sm">
+            <div className="fs-5 fw-bold">
+              {formatCurrency(totalInvestment)}
+            </div>
+            <div className="text-secondary small mt-1">Total investment</div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div className="border rounded p-3 text-center h-100 bg-white shadow-sm">
+            <div className="fs-5 fw-bold">{formatCurrency(currentValue)}</div>
+            <div className="text-secondary small mt-1">Current value</div>
+          </div>
+        </div>
+        <div className="col-12 col-md-4">
+          <div className="border rounded p-3 text-center h-100 bg-white shadow-sm">
+            <div
+              className={
+                pnl >= 0
+                  ? "fs-5 fw-bold text-success"
+                  : "fs-5 fw-bold text-danger"
+              }
+            >
+              {formatCurrency(pnl)} ({pnlPercent.toFixed(2)}%)
+            </div>
+            <div className="text-secondary small mt-1">P&amp;L</div>
+          </div>
+        </div>
+      </div>
 
-      <div className="order-table">
-        <table>
-          <thead>
+      {/* Doughnut chart */}
+      <div className="row mb-5">
+        <div className="col-12 col-md-6 mx-auto">
+          <div style={{ maxWidth: "400px", margin: "auto" }}>
+            <DoughnutChart data={getHoldingChartData()} />
+          </div>
+        </div>
+      </div>
+
+      {/* Holdings Table */}
+      <div className="table-responsive mb-4">
+        <table className="table table-hover align-middle shadow-sm bg-white">
+          <thead className="table-light">
             <tr>
               <th>Instrument</th>
               <th>Qty.</th>
               <th>Avg. cost</th>
               <th>LTP</th>
               <th>Cur. val</th>
-              <th>P&L</th>
+              <th>P&amp;L</th>
               <th>Net chg.</th>
               <th>Day chg.</th>
             </tr>
@@ -118,13 +170,16 @@ const Holdings = () => {
               const qty = safeValue(stock.qty);
               const curValue = price * qty;
               const profitLoss = curValue - avg * qty;
-              const profClass = profitLoss >= 0 ? "profit" : "loss";
+              const profClass =
+                profitLoss >= 0
+                  ? "text-success fw-bold"
+                  : "text-danger fw-bold";
               const netClass = String(stock.net || "").includes("-")
-                ? "loss"
-                : "profit";
+                ? "text-danger"
+                : "text-success";
               const dayClass = String(stock.day || "").includes("-")
-                ? "loss"
-                : "profit";
+                ? "text-danger"
+                : "text-success";
 
               return (
                 <tr key={index}>
@@ -145,27 +200,17 @@ const Holdings = () => {
         </table>
       </div>
 
-      <div className="row">
-        <div className="col">
-          <h5>{formatCurrency(totalInvestment)}</h5>
-          <p>Total investment</p>
-        </div>
-        <div className="col">
-          <h5>{formatCurrency(currentValue)}</h5>
-          <p>Current value</p>
-        </div>
-        <div className="col">
-          <h5 className={pnl >= 0 ? "profit" : "loss"}>
-            {formatCurrency(pnl)} ({pnlPercent.toFixed(2)}%)
-          </h5>
-          <p>P&L</p>
-        </div>
-      </div>
-      {/* New Doughnut Chart added */}
-      <div style={{ maxWidth: "400px", margin: "auto", paddingBottom: "2rem" }}>
-        <DoughnutChart data={getHoldingChartData()} />
-      </div>
-    </>
+      {/* In-page style for Zerodha look & responsiveness */}
+      <style>{`
+        .table th, .table td { vertical-align: middle !important; }
+        .table { font-size: 1rem; }
+        @media (max-width: 767px) {
+          .table-responsive { font-size: .95rem; }
+          .table th, .table td { padding: 6px !important; }
+          .bg-white { box-shadow: none !important; }
+        }
+      `}</style>
+    </div>
   );
 };
 

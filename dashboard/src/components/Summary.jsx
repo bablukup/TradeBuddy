@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "./Summary.css";
 import ValueBar from "/charts/valueBar";
 
@@ -49,6 +49,7 @@ const Summary = () => {
         setPortfolio(portfolioData?.portfolio || []);
         setHistory(historyData?.trades || []);
         setLoading(false);
+        setError(null);
       })
       .catch((err) => {
         console.error("❌ Fetch Error:", err);
@@ -57,117 +58,143 @@ const Summary = () => {
       });
   }, [token]);
 
-  const metricsArray = useMemo(
-    () => [
+  const metricsArray = useMemo(() => {
+    const totalCurrentValue = portfolio.reduce(
+      (sum, item) => sum + (item.qty * item.price || 0),
+      0
+    );
+    const totalInvestmentValue = portfolio.reduce(
+      (sum, item) => sum + (item.qty * item.avg || 0),
+      0
+    );
+    const pnlValue = totalCurrentValue - totalInvestmentValue;
+
+    return [
       {
         label: "Current value",
-        value:
-          portfolio.reduce((sum, item) => sum + item.qty * item.price, 0) || 0,
+        value: totalCurrentValue,
       },
       {
         label: "Investment value",
-        value:
-          portfolio.reduce((sum, item) => sum + item.qty * item.avg, 0) || 0,
+        value: totalInvestmentValue,
       },
       {
         label: "P&L",
-        value:
-          (portfolio.reduce((sum, item) => sum + item.qty * item.price, 0) ||
-            0) -
-          (portfolio.reduce((sum, item) => sum + item.qty * item.avg, 0) || 0),
+        value: pnlValue,
       },
-    ],
-    [portfolio]
-  );
+    ];
+  }, [portfolio]);
 
-  if (loading) return <div className="loading">Loading...</div>;
-  if (error) return <div className="error">{error}</div>;
-  if (!user) return <div className="no-data">No data available</div>;
+  const formatCurrency = (num) => {
+    if (num === undefined || num === null || isNaN(num)) return "₹0.00";
+    return num.toLocaleString("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 2,
+    });
+  };
+
+  if (loading)
+    return (
+      <div className="loading-container">
+        <div
+          className="spinner-border text-primary"
+          role="status"
+          style={{ width: 40, height: 40 }}
+        />
+        <p className="loading-text mt-3">Loading...</p>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div className="error-container">
+        <p className="error-text">{error}</p>
+      </div>
+    );
+
+  if (!user)
+    return (
+      <div className="no-data-container">
+        <p className="no-data-text">No data available</p>
+      </div>
+    );
 
   return (
-    <>
-      <div className="summary-container">
-        <div className="username">
-          <h6>Hi, {user.username || "Data not available"} 👋</h6>
-          <hr className="divider" />
-        </div>
-
-        <div className="section">
-          <span className="section-title">Equity</span>
-          <div className="data">
-            <div className="first">
-              <h3>
-                {user.balance ? `₹${user.balance}` : "Data not available"}
-              </h3>
-              <p>Margin available</p>
-            </div>
-            <div className="second">
-              <p>
-                Margins used <span>Data not available</span>
-              </p>
-              <p>
-                Opening balance{" "}
-                <span>
-                  {user.balance ? `₹${user.balance}` : "Data not available"}
-                </span>
-              </p>
-            </div>
-          </div>
-          <hr className="divider" />
-        </div>
-
-        <div className="section">
-          <span className="section-title">Holdings</span>
-          <div className="data">
-            <div className="first">
-              <h3 className="profit">
-                {portfolio.length
-                  ? `₹${portfolio.reduce(
-                      (sum, item) => sum + item.qty * item.price,
-                      0
-                    )}`
-                  : "Data not available"}{" "}
-                <small>+Data not available</small>
-              </h3>
-              <p>P&L</p>
-            </div>
-            <div className="second">
-              <p>
-                Current Value{" "}
-                <span>
-                  {portfolio.length
-                    ? `₹${portfolio.reduce(
-                        (sum, item) => sum + item.qty * item.price,
-                        0
-                      )}`
-                    : "Data not available"}
-                </span>
-              </p>
-              <p>
-                Investment{" "}
-                <span>
-                  {portfolio.length
-                    ? `₹${portfolio.reduce(
-                        (sum, item) => sum + item.qty * item.avg,
-                        0
-                      )}`
-                    : "Data not available"}
-                </span>
-              </p>
-            </div>
-          </div>
-          <hr className="divider" />
-        </div>
-
-        <div>
-          <ValueBar
-            metrics={metricsArray}
-            selected={selectedIndex}
-            onChange={setSelectedIndex}
-          />
-        </div>
+    <div className="summary-container container py-4">
+      <div className="username-section mb-4">
+        <h6>Hi, {user.username || "Data not available"} 👋</h6>
+        <hr className="divider" />
       </div>
-    </>
+
+      <div className="section equity-section mb-4">
+        <span className="section-title">Equity</span>
+        <div className="data flex-wrap">
+          <div className="first-block">
+            <h3>
+              {user.balance
+                ? formatCurrency(user.balance)
+                : "Data not available"}
+            </h3>
+            <p>Margin available</p>
+          </div>
+          <div className="second-block">
+            <p>
+              Margins used <span>Data not available</span>
+            </p>
+            <p>
+              Opening balance{" "}
+              <span>
+                {user.balance
+                  ? formatCurrency(user.balance)
+                  : "Data not available"}
+              </span>
+            </p>
+          </div>
+        </div>
+        <hr className="divider" />
+      </div>
+
+      <div className="section holdings-section mb-4">
+        <span className="section-title">Holdings</span>
+        <div className="data flex-wrap">
+          <div className="first-block">
+            <h3 className="profit">
+              {portfolio.length
+                ? formatCurrency(metricsArray[0].value)
+                : "Data not available"}{" "}
+              <small>+Data not available</small>
+            </h3>
+            <p>P&L</p>
+          </div>
+          <div className="second-block">
+            <p>
+              Current Value{" "}
+              <span>
+                {portfolio.length
+                  ? formatCurrency(metricsArray.value)
+                  : "Data not available"}
+              </span>
+            </p>
+            <p>
+              Investment{" "}
+              <span>
+                {portfolio.length
+                  ? formatCurrency(metricsArray[1].value)
+                  : "Data not available"}
+              </span>
+            </p>
+          </div>
+        </div>
+        <hr className="divider" />
+      </div>
+
+      <ValueBar
+        metrics={metricsArray}
+        selected={selectedIndex}
+        onChange={setSelectedIndex}
+      />
+    </div>
   );
 };
 
