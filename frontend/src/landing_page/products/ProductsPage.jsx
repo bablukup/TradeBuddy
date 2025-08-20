@@ -13,7 +13,7 @@ function ProductsPage() {
         imageURL="/media/image/kite.png"
         productName="TradeBuddy"
         productDescription="TradeBuddy offers a seamless trading experience across devices. Access detailed analytics, real-time charts, and essential trading functionalities whether you’re at your desk or on-the-go. Stay in control of your investments anytime, anywhere."
-        tryDemo="#"
+        tryDemo="/signup"
         learnMore="#"
       />
 

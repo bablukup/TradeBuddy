@@ -8,7 +8,7 @@ function NotFound() {
     >
       <div className="text-center" style={{ maxWidth: "400px", width: "100%" }}>
         <img
-          src="/media/image/404.svg" // apni image ka path yahan lagayen
+          src="/media/image/404.svg"
           alt="404 Not Found"
           className="img-fluid mb-4"
           style={{ maxHeight: "180px", margin: "0 auto" }}

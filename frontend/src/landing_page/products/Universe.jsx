@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function Universe() {
+  const navigate = useNavigate();
   // Sample logos and names can be changed as per your needs
   const items = [
     { src: "/media/image/smallcaseLogo.png", name: "Smallcase" },
@@ -36,6 +38,7 @@ function Universe() {
         <button
           className="btn btn-primary p-2 fs-5 mt-3 mb-5"
           style={{ maxWidth: "240px", width: "100%", borderRadius: "30px" }}
+          onClick={() => navigate("/signup")}
         >
           Sign Up Now
         </button>

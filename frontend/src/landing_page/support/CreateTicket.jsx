@@ -7,7 +7,7 @@ function CreateTicket() {
         <div className="col-12 col-md-6">
           <div className="card h-100">
             <img
-              src="/media/image/help.svg" // Corrected path slashes
+              src="/media/image/help.svg"
               className="card-img-top"
               alt="Help"
             />
@@ -16,7 +16,13 @@ function CreateTicket() {
               <p className="card-text flex-grow-1">
                 Start a quick chat now for instant help!
               </p>
-              <button className="btn btn-primary mt-auto" type="button">
+              <button
+                className="btn btn-primary mt-auto"
+                type="button"
+                onClick={() => {
+                  window.open("https://x.com/Bablukup", "_blank");
+                }}
+              >
                 Chat Now
               </button>
             </div>

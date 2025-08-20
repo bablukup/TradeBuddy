@@ -1,6 +1,8 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 function Hero() {
+  const navigate = useNavigate();
   return (
     <>
       <div className="container p-5 mb-5">
@@ -23,6 +25,7 @@ function Hero() {
             <button
               className="btn btn-primary btn-lg px-5"
               style={{ borderRadius: "50px" }}
+              onClick={() => navigate("/signup")}
             >
               Sign Up
             </button>

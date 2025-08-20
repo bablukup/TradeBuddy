@@ -11,7 +11,7 @@ function Pricing() {
               We pioneered transparent, discount broking in India. Flat fees. No
               hidden charges.
             </p>
-            <a href="/" className="btn btn-primary mt-3">
+            <a href="/pricing" className="btn btn-primary mt-3">
               See Pricing
             </a>
           </div>

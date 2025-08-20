@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 
+const baseUrl = import.meta.env.VITE_API_URL;
+const redirectUrl =
+  import.meta.env.VITE_FRONTEND_URL || "http://localhost:5174";
+
 function AuthPage() {
   const [isSignup, setIsSignup] = useState(true);
   const [formData, setFormData] = useState({
@@ -21,8 +25,8 @@ function AuthPage() {
 
     try {
       const url = isSignup
-        ? "http://localhost:8080/api/auth/register"
-        : "http://localhost:8080/api/auth/login";
+        ? `${baseUrl}/api/auth/register`
+        : `${baseUrl}/api/auth/login`;
 
       const { data } = await axios.post(url, formData, {
         headers: { "Content-Type": "application/json" },
@@ -39,7 +43,7 @@ function AuthPage() {
       console.log("User:", data.user);
 
       setTimeout(() => {
-        window.location.href = `http://localhost:5174/?token=${data.token}`;
+        window.location.href = `${redirectUrl}/?token=${data.token}`;
       }, 1000);
     } catch (error) {
       console.error(error);
