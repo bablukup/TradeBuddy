@@ -6,9 +6,12 @@ const cors = require("cors");
 const finnhub = require("./services/finnhub");
 
 const dbUrl = process.env.ATLASDB_URL;
+const PORT = process.env.PORT || 8080;
 
 // Allowed frontend domains
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : [];
 
 app.use(
   cors({
@@ -63,6 +66,6 @@ app.get("/quote/:symbol", async (req, res) => {
   }
 });
 
-app.listen(8080, () => {
+app.listen(PORT, () => {
   console.log("root is working");
 });
