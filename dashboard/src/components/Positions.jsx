@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+const BASE_URL =
+  import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:8080";
+
 const Positions = () => {
   const [allPositions, setAllPositions] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/allPosition").then((res) => {
+    axios.get(`${BASE_URL}/allPosition`).then((res) => {
       console.log(res.data);
       setAllPositions(res.data);
     });

@@ -20,7 +20,8 @@ const symbols = [
   "HINDUNILVR.NSE",
 ];
 
-const BACKEND_URL = "http://localhost:8080"; // Apne backend ka URL yahan lagao
+const BASE_URL =
+  import.meta.env.VITE_REACT_APP_API_URL || "http://localhost:8080";
 
 const WatchList = () => {
   const { setDefaultUID } = useContext(GeneralContext);
@@ -31,7 +32,7 @@ const WatchList = () => {
       try {
         const results = await Promise.all(
           symbols.map(async (symbol) => {
-            const res = await fetch(`${BACKEND_URL}/quote/${symbol}`);
+            const res = await fetch(`${BASE_URL}/quote/${symbol}`);
             const json = await res.json();
 
             if (json.success && json.data) {
