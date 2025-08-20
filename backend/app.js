@@ -10,7 +10,7 @@ const PORT = process.env.PORT || 8080;
 
 // Allowed frontend domains
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(",")
+  ? process.env.ALLOWED_ORIGINS.split(",").map((origin) => origin.trim())
   : [];
 
 app.use(
